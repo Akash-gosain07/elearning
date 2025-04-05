@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal - E-Learning Platform</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            animation: bgPulse 20s ease infinite;
+        }
+
+        @keyframes bgPulse {
+            0% { background-position: 0% 50%; }
+            25% { background-position: 25% 75%; }
+            50% { background-position: 50% 50%; }
+            75% { background-position: 75% 25%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        header {
+            background: rgba(44, 62, 80, 0.9);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            animation: slideDown 1s ease-out;
+            position: relative;
+        }
+
+        /* New CSS for User Photo */
+        .user-photo {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: url('user-photo.jpg') no-repeat center center;
+            background-size: cover;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        nav {
+            background: rgba(52, 73, 94, 0.8);
+            padding: 1rem;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-size: 1.1rem;
+            padding: 0.8rem 1.2rem;
+            transition: all 0.4s ease;
+            position: relative;
+        }
+
+        nav ul li a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background: #3498db;
+            transition: width 0.3s ease;
+        }
+
+        nav ul li a:hover::after {
+            width: 100%;
+        }
+
+        nav ul li a:hover {
+            color: #e74c3c;
+            transform: scale(1.1);
+        }
+
+        main {
+            flex: 1;
+            padding: 3rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 3rem;
+            animation: zoomIn 1.5s ease-out;
+        }
+
+        @keyframes zoomIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2.5rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            transition: all 0.5s ease;
+            overflow: hidden;
+        }
+
+        section:hover {
+            transform: translateY(-10px) rotateX(5deg);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        section h2 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            animation: bounce 1s ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-20px); }
+            60% { transform: translateY(-10px); }
+        }
+
+        ul li {
+            padding: 1rem 0;
+            color: #34495e;
+            font-size: 1.1rem;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        ul li::before {
+            content: "✓";
+            color: #27ae60;
+            margin-right: 0.8rem;
+            font-size: 1.2rem;
+        }
+
+        ul li:hover {
+            color: #e74c3c;
+            transform: translateX(10px);
+        }
+
+        footer {
+            background: rgba(44, 62, 80, 0.9);
+            color: white;
+            padding: 1.5rem;
+            margin-top: auto;
+            text-align: center;
+            animation: slideUp 1s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            nav ul { flex-direction: column; align-items: center; }
+            main { grid-template-columns: 1fr; padding: 1rem; }
+            section { padding: 1.5rem; }
+            .user-photo { top: 10px; right: 10px; width: 50px; height: 50px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Admin Portal</h1>
+        <div class="user-photo"></div> <!-- Added User Photo -->
+        <nav>
+            <ul>
+                <li><a href="#user-management">User Management</a></li>
+                <li><a href="#course-management">Course Management</a></li>
+                <li><a href="#reports">Reports</a></li>
+                <li><a href="#monitoring">System Monitoring</a></li>
+                <li><a href="#announcements">Announcements</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="admin">
+            <h2>Admin Dashboard</h2>
+            <ul>
+                <li>User Management</li>
+                <li>Course Management</li>
+                <li>Report Generation</li>
+                <li>System Monitoring</li>
+                <li>Announcements</li>
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2023 E-Learning Platform. All rights reserved.</p>
+    </footer>
+
+    <script>
+        if (!localStorage.getItem('isLoggedIn')) {
+            window.location.href = 'index.html';
+        }
+
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>

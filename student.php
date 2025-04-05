@@ -1,0 +1,460 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'student') {
+    header("Location: index.html");
+    exit();
+}
+
+require_once 'db_connect.php';
+
+// Fetch courses from the database
+$stmt = $conn->prepare("SELECT course_id, course_name, fee, overview FROM courses");
+$stmt->execute();
+$courses = $stmt->fetchAll(PDO::FETCH_ASSOC);
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Portal - E-Learning Platform</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #7bed9f, #ff9ff3, #feca57);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            animation: swirlBg 20s linear infinite;
+        }
+
+        @keyframes swirlBg {
+            0% { background-position: 0% 0%, 0% 100%; }
+            50% { background-position: 100% 0%, 100% 100%; }
+            100% { background-position: 0% 0%, 0% 100%; }
+        }
+
+        header {
+            background: rgba(44, 62, 80, 0.9);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            animation: flipIn 1s ease-in;
+            position: relative;
+        }
+
+        .user-photo {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: url('user-photo.jpg') no-repeat center center;
+            background-size: cover;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes flipIn {
+            from { transform: perspective(400px) rotateY(90deg); opacity: 0; }
+            to { transform: perspective(400px) rotateY(0deg); opacity: 1; }
+        }
+
+        nav {
+            background: rgba(52, 73, 94, 0.8);
+            padding: 1rem;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-size: 1.1rem;
+            padding: 0.8rem 1.2rem;
+            position: relative;
+            transition: all 0.4s ease;
+        }
+
+        nav ul li a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            right: 0;
+            background: #e74c3c;
+            transition: width 0.3s ease;
+        }
+
+        nav ul li a:hover::after {
+            width: 100%;
+        }
+
+        nav ul li a:hover {
+            color: #27ae60;
+            transform: scale(1.1) rotate(-5deg);
+        }
+
+        main {
+            flex: 1;
+            padding: 3rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 3rem;
+            animation: bounceIn 1.5s ease-out;
+        }
+
+        @keyframes bounceIn {
+            from, 20%, 40%, 60%, 80%, to { transform: translateY(0); }
+            50% { transform: translateY(-30px); }
+            70% { transform: translateY(-15px); }
+            90% { transform: translateY(-5px); }
+        }
+
+        section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2.5rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            transition: all 0.5s ease;
+            overflow: hidden;
+        }
+
+        section:hover {
+            transform: translateY(-10px) scale(1.03);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        section h2 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        ul li {
+            padding: 1rem 0;
+            color: #34495e;
+            font-size: 1.1rem;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        ul li::before {
+            content: "➤";
+            color: #3498db;
+            margin-right: 0.8rem;
+            font-size: 1.2rem;
+        }
+
+        ul li:hover {
+            color: #f1c40f;
+            transform: translateX(15px) scale(1.05);
+        }
+
+        .courses-section {
+            margin-top: 2rem;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            animation: slideRight 1s ease-out;
+        }
+
+        @keyframes slideRight {
+            from { transform: translateX(-100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .courses-section h3 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .course-card {
+            margin: 1rem 0;
+            padding: 1.5rem;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .course-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px 10px 0 0;
+            margin-bottom: 1rem;
+        }
+
+        .course-details {
+            padding: 1rem;
+        }
+
+        .course-details h4 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .course-details p {
+            color: #34495e;
+            margin-bottom: 0.5rem;
+        }
+
+        .course-actions {
+            margin-top: 1rem;
+        }
+
+        .course-actions button {
+            background: #3498db;
+            color: white;
+            padding: 0.7rem 1.2rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .course-actions button:hover {
+            background: #e74c3c;
+        }
+
+        .dropdown {
+            display: none;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 0 0 10px 10px;
+            margin-top: -10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .course-card:hover .dropdown {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .payment-form {
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .payment-form.active {
+            display: block;
+            animation: popIn 0.5s ease-out;
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .payment-form h3 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+
+        .payment-form form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .payment-form input, .payment-form select {
+            padding: 0.8rem;
+            border: 2px solid #3498db;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .payment-form input:focus, .payment-form select:focus {
+            border-color: #e74c3c;
+            outline: none;
+        }
+
+        .payment-form button {
+            background: #27ae60;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .payment-form button:hover {
+            background: #2ecc71;
+        }
+
+        footer {
+            background: rgba(44, 62, 80, 0.9);
+            color: white;
+            padding: 1.5rem;
+            margin-top: auto;
+            text-align: center;
+            animation: fadeOutIn 1s ease-out;
+        }
+
+        @keyframes fadeOutIn {
+            0% { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            nav ul { flex-direction: column; align-items: center; }
+            main { grid-template-columns: 1fr; padding: 1rem; }
+            section { padding: 1.5rem; }
+            .courses-section { padding: 1rem; }
+            .course-card { padding: 1rem; }
+            .user-photo { top: 10px; right: 10px; width: 50px; height: 50px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Student Portal</h1>
+        <div class="user-photo"></div>
+        <nav>
+            <ul>
+                <li><a href="#registration">Registration</a></li>
+                <li><a href="#enrolment" id="enrolmentLink">Course Enrolment</a></li>
+                <li><a href="#lectures">Lectures</a></li>
+                <li><a href="#submissions">Assignments</a></li>
+                <li><a href="#exams">Exams</a></li>
+                <li><a href="#grades">Grades</a></li>
+                <li><a href="#push">Push Notifications</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="student">
+            <h2>Student Dashboard</h2>
+            <ul>
+                <li>User Registration & Authentication</li>
+                <li>Course Enrolment</li>
+                <li>Lecture Access</li>
+                <li>Assignment Submission</li>
+                <li>Quiz & Exam Participation</li>
+                <li>Grades & Feedback</li>
+                <li>Push Notifications</li>
+            </ul>
+        </section>
+
+        <section class="courses-section">
+            <h3>Available Courses</h3>
+            <?php foreach ($courses as $course): ?>
+                <div class="course-card">
+                    <img src="https://via.placeholder.com/300x200?text=<?php echo urlencode($course['course_name']); ?>" alt="<?php echo htmlspecialchars($course['course_name']); ?> Course" class="course-image">
+                    <div class="course-details">
+                        <h4><?php echo htmlspecialchars($course['course_name']); ?></h4>
+                        <p>Fee: ₹<?php echo number_format($course['fee'], 2); ?></p>
+                    </div>
+                    <div class="course-actions">
+                        <button onclick="showPaymentForm('<?php echo htmlspecialchars($course['course_name']); ?>', <?php echo $course['fee']; ?>, <?php echo $course['course_id']; ?>)">Enroll Now</button>
+                    </div>
+                    <div class="dropdown">
+                        <p><strong>Overview:</strong> <?php echo htmlspecialchars($course['overview']); ?></p>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+
+            <div class="payment-form" id="paymentForm">
+                <h3>Course Payment</h3>
+                <form id="paymentFormElement">
+                    <input type="text" id="fullName" name="fullName" placeholder="Full Name" required>
+                    <input type="email" id="email" name="email" placeholder="Email" required>
+                    <input type="text" id="courseName" name="courseName" placeholder="Course Name" readonly>
+                    <input type="text" id="courseFee" name="courseFee" placeholder="Course Fee" readonly>
+                    <input type="hidden" id="courseId" name="courseId">
+                    <input type="text" id="cardNumber" name="cardNumber" placeholder="Card Number" required>
+                    <input type="text" id="expiryDate" name="expiryDate" placeholder="Expiry Date (MM/YY)" required>
+                    <input type="text" id="cvv" name="cvv" placeholder="CVV" required>
+                    <button type="submit">Pay Now</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2023 E-Learning Platform. All rights reserved.</p>
+    </footer>
+
+    <script>
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        function showPaymentForm(courseName, fee, courseId) {
+            const paymentForm = document.getElementById('paymentForm');
+            document.getElementById('courseName').value = courseName;
+            document.getElementById('courseFee').value = `₹${fee}`;
+            document.getElementById('courseId').value = courseId;
+            paymentForm.classList.add('active');
+        }
+
+        document.getElementById('paymentFormElement').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            let formData = new FormData(this);
+            fetch('enroll.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                if (data.success) {
+                    document.getElementById('paymentForm').classList.remove('active');
+                    this.reset();
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>
